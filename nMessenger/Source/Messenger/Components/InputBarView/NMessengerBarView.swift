@@ -169,7 +169,7 @@ open class NMessengerBarView: InputBarView, UITextViewDelegate {
         textInputView.autoPinEdge(toSuperviewEdge: .top)
         textInputView.autoPinEdge(toSuperviewEdge: .bottom)
         textInputView.autoPinEdge(.left, to: .right, of: leftView)
-        textInputView.autoPinEdge(.right, to: .left, of: sendButton)
+        textInputView.autoPinEdge(.right, to: .left, of: rightView)
     }
     
     //MARK: TextView delegate methods
