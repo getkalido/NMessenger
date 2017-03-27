@@ -23,6 +23,11 @@ public protocol InputBarViewDelegate : class {
      Should define behavior attach button is tapped
      */
     func onAttach()
+    
+    /**
+     Should define behavior when send button is tapped
+     */
+    func onSendText()
 }
 
 /**
@@ -276,6 +281,7 @@ open class NMessengerBarView: InputBarView, UITextViewDelegate {
         if textInputView.text != ""
         {
             _ = controller.sendText(textInputView.text,isIncomingMessage: false)
+            inputBarDelegate?.onSendText()
             textInputView.text = ""
         }
     }
