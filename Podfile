@@ -6,7 +6,10 @@ target 'nMessenger' do
   use_frameworks!
 
   # Pods for nMessenger
-  pod 'AsyncDisplayKit', '2.2' 	
+  pod 'AsyncDisplayKit', '2.2'
+  
+  # UI
+  pod 'PureLayout'
 
   target 'nMessengerTests' do
     inherit! :search_paths
