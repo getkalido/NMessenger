@@ -20,7 +20,7 @@ import PureLayout
  */
 public protocol InputBarViewDelegate : class {
     /**
-     Should define behavior attach button is tapped
+     Should define behavior when attach button is tapped
      */
     func onAttach()
     
@@ -280,7 +280,6 @@ open class NMessengerBarView: InputBarView, UITextViewDelegate {
         textInputAreaViewHeight.constant = textInputViewHeightConst+10
         if textInputView.text != ""
         {
-            _ = controller.sendText(textInputView.text,isIncomingMessage: false)
             inputBarDelegate?.onSendText(textInputView.text)
             textInputView.text = ""
         }
