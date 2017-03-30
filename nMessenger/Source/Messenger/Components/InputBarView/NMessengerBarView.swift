@@ -122,7 +122,6 @@ open class NMessengerBarView: InputBarView, UITextViewDelegate {
         inputBarView.frame = bounds
         
         inputBarView.addSubview(textInputAreaView)
-        textInputAreaView.autoPinEdgesToSuperviewEdges(with: UIEdgeInsets(top: 5, left: 5, bottom: 5, right: 5))
         
         rightView.backgroundColor = UIColor.white
         leftView.backgroundColor = UIColor.white
@@ -154,10 +153,11 @@ open class NMessengerBarView: InputBarView, UITextViewDelegate {
     
     open override func updateConstraints() {
         super.updateConstraints()
-        
         inputBarView.autoSetDimension(.height, toSize: 43)
         
         inputBarView.autoPinEdgesToSuperviewEdges()
+        
+        textInputAreaView.autoPinEdgesToSuperviewEdges(with: UIEdgeInsets(top: 5, left: 5, bottom: 5, right: 5))
         
         rightView.autoPinEdge(toSuperviewEdge: .top)
         rightView.autoPinEdge(toSuperviewEdge: .bottom)
