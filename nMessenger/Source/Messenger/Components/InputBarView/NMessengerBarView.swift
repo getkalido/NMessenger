@@ -223,7 +223,7 @@ open class NMessengerBarView: InputBarView, UITextViewDelegate {
             if textView == textInputView {
                 textInputViewHeight.constant = textInputViewHeightConst
                 textInputAreaViewHeight.constant = textInputViewHeightConst+10
-                _ = controller.sendText(textInputView.text,isIncomingMessage: false)
+                sendButtonClicked()
                 textInputView.text = ""
                 return false
             }
