@@ -447,7 +447,7 @@ open class MessageGroup: GeneralMessengerCell {
                     message.messageOffset = 0
                 }
                 
-            } else if messages.first == nil {
+            } else {
                 message.cellPadding = UIEdgeInsets.zero
                 if let message = message as? MessageNode {
                     message.contentNode?.backgroundBubble = message.contentNode?.bubbleConfiguration.getBubble()
