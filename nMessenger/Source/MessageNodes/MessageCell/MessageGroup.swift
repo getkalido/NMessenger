@@ -25,6 +25,12 @@ open class MessageGroup: GeneralMessengerCell {
         case none
     }
     
+    /** Used for current state of avatar display position, on first or last message */
+    public enum PrimaryBubblePosition {
+        case first
+        case last
+    }
+    
     // MARK: Public Variables
     open weak var delegate: MessageCellProtocol?
     /** Holds a table of GeneralMessengerCells*/
@@ -37,6 +43,8 @@ open class MessageGroup: GeneralMessengerCell {
     open var animationDelay: TimeInterval = 0
     /** Avatar new message animation speed */
     open var avatarAnimationSpeed: TimeInterval = 0.15
+    /** Avatar display position*/
+    open var primaryBubblePosition: PrimaryBubblePosition = .first
     
     /**
      Spacing around the avatar
@@ -395,7 +403,7 @@ open class MessageGroup: GeneralMessengerCell {
         message.currentTableNode = self.messageTable
         
         //message specific UI
-        if messages.first == nil { //will be the first message
+        if isPrimaryBubblePosition(message) { //will be the avatar display position
             message.cellPadding = UIEdgeInsets.zero
             if let message = message as? MessageNode {
                 message.contentNode?.backgroundBubble = message.contentNode?.bubbleConfiguration.getBubble()
@@ -411,6 +419,15 @@ open class MessageGroup: GeneralMessengerCell {
                 //set the offset to 0 to prevent spacing issues
                 message.messageOffset = 0
             }
+        }
+    }
+    
+    fileprivate func isPrimaryBubblePosition(_ message: GeneralMessengerCell) -> Bool {
+        switch primaryBubblePosition {
+        case .first:
+            return messages.first == nil
+        case .last:
+            return messages.last == nil
         }
     }
     
