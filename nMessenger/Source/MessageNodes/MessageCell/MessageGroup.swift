@@ -402,32 +402,62 @@ open class MessageGroup: GeneralMessengerCell {
     fileprivate func updateMessage(_ message: GeneralMessengerCell) {
         message.currentTableNode = self.messageTable
         
-        //message specific UI
-        if isPrimaryBubblePosition(message) { //will be the avatar display position
-            message.cellPadding = UIEdgeInsets.zero
-            if let message = message as? MessageNode {
-                message.contentNode?.backgroundBubble = message.contentNode?.bubbleConfiguration.getBubble()
-                message.isIncomingMessage = self.isIncomingMessage
-                //set the offset to 0 to prevent spacing issues
-                message.messageOffset = 0
-            }
-        } else {
-            message.cellPadding = UIEdgeInsets(top: 4, left: 0, bottom: 0, right: 0)
-            if let message = message as? MessageNode {
-                message.contentNode?.backgroundBubble = message.contentNode?.bubbleConfiguration.getSecondaryBubble()
-                message.isIncomingMessage = self.isIncomingMessage
-                //set the offset to 0 to prevent spacing issues
-                message.messageOffset = 0
-            }
-        }
-    }
-    
-    fileprivate func isPrimaryBubblePosition(_ message: GeneralMessengerCell) -> Bool {
         switch primaryBubblePosition {
         case .first:
-            return messages.first == nil
+            //message specific UI
+            if  messages.first == nil {
+                message.cellPadding = UIEdgeInsets.zero
+                if let message = message as? MessageNode {
+                    message.contentNode?.backgroundBubble = message.contentNode?.bubbleConfiguration.getBubble()
+                    message.isIncomingMessage = self.isIncomingMessage
+                    //set the offset to 0 to prevent spacing issues
+                    message.messageOffset = 0
+                }
+            } else {
+                message.cellPadding = UIEdgeInsets(top: 4, left: 0, bottom: 0, right: 0)
+                if let message = message as? MessageNode {
+                    message.contentNode?.backgroundBubble = message.contentNode?.bubbleConfiguration.getSecondaryBubble()
+                    message.isIncomingMessage = self.isIncomingMessage
+                    //set the offset to 0 to prevent spacing issues
+                    message.messageOffset = 0
+                }
+            }
+            break
         case .last:
-            return messages.last == nil
+            if !messages.isEmpty {
+                let lastIndex = messages.count - 1
+                let oldMessage = self.messages[lastIndex]
+                //set state
+                self.state = .replaced
+                if let message = oldMessage as? MessageNode {
+                    let isIncoming = message.isIncomingMessage
+                    message.contentNode?.backgroundBubble = message.contentNode?.bubbleConfiguration.getSecondaryBubble()
+                    message.isIncomingMessage = isIncoming
+                    //set the offset to 0 to prevent spacing issues
+                    message.messageOffset = 0
+                }
+                
+                self.messageTable.reloadRows(at: [IndexPath(row: lastIndex, section: 0) ], with: .fade)
+                
+                message.cellPadding = UIEdgeInsets.zero
+                if let message = message as? MessageNode {
+                    message.contentNode?.backgroundBubble = message.contentNode?.bubbleConfiguration.getBubble()
+                    message.isIncomingMessage = self.isIncomingMessage
+                    //set the offset to 0 to prevent spacing issues
+                    message.messageOffset = 0
+                }
+                
+            } else {
+                message.cellPadding = UIEdgeInsets.zero
+                if let message = message as? MessageNode {
+                    message.contentNode?.backgroundBubble = message.contentNode?.bubbleConfiguration.getBubble()
+                    message.isIncomingMessage = self.isIncomingMessage
+                    //set the offset to 0 to prevent spacing issues
+                    message.messageOffset = 0
+                }
+            }
+            
+            break
         }
     }
     
