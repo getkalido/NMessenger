@@ -308,6 +308,30 @@ open class MessageGroup: GeneralMessengerCell {
     }
     
     /**
+     Add a message to this group
+     - parameter message: the message to add
+     - parameter index: an index at which to start adding messages
+     - parameter layoutCompletionBlock: The block to be called once the new node has been added
+     */
+    open func addMessageToGroup(_ message: GeneralMessengerCell, atIndex index: Int, completion: (()->Void)?) {
+        self.updateMessage(message)
+        self.layoutCompletionBlock = completion
+        
+        //if the component is already on the screen
+        if self.hasLaidOut {
+            let indexPath = IndexPath(row: index, section:0)
+            //set state
+            self.state = .added(index: indexPath)
+            //update table DS
+            self.messages.insert(message, at: index)
+            //transition avatar + tableview cells
+            self.transitionLayout(withAnimation: true, shouldMeasureAsync: false, measurementCompletion: nil)
+        } else {
+            self.messages.insert(message, at: index)
+        }
+    }
+    
+    /**
      If the message exists in the group, it will be replaced with the new message. **Unimplemented**
      - parameter message: The message to replace
      - parameter withMessage: The message that will replace the old one
