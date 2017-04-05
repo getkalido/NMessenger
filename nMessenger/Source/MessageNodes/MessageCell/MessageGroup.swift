@@ -19,7 +19,7 @@ open class MessageGroup: GeneralMessengerCell {
     
     /** Used for current state of new/old messages*/
     public enum MessageGroupState {
-        case added(index: IndexPath)
+        case added(indexes: [IndexPath])
         case removed
         case replaced
         case none
@@ -187,7 +187,7 @@ open class MessageGroup: GeneralMessengerCell {
     override open func animateLayoutTransition(_ context: ASContextTransitioning) {
         if let state = self.state {
             switch(state) {
-            case .added(let indexPath):
+            case .added(let indexPaths):
                 if let _ = self.avatarNode {
                     self.avatarNode?.frame = context.initialFrame(for: self.avatarNode!)
                 }
@@ -214,7 +214,7 @@ open class MessageGroup: GeneralMessengerCell {
                     let time: DispatchTime = DispatchTime.now() + Double(Int64(self.tableviewAnimationDelay)*1000 * Int64(NSEC_PER_MSEC)) / Double(NSEC_PER_SEC)
                     DispatchQueue.main.asyncAfter(deadline: time) {
                         self.messageTable.performBatch(animated: true, updates: {
-                            self.messageTable.insertRows(at: [indexPath], with: .fade)
+                            self.messageTable.insertRows(at: indexPaths, with: .fade)
                         }, completion: { (finished) in
                         })
                     }
@@ -297,7 +297,7 @@ open class MessageGroup: GeneralMessengerCell {
         if self.hasLaidOut {
             let indexPath = IndexPath(row: self.messages.count, section:0)
             //set state
-            self.state = .added(index: indexPath)
+            self.state = .added(indexes: [indexPath])
             //update table DS
             self.messages.append(message)
             //transition avatar + tableview cells
@@ -321,13 +321,32 @@ open class MessageGroup: GeneralMessengerCell {
         if self.hasLaidOut {
             let indexPath = IndexPath(row: index, section:0)
             //set state
-            self.state = .added(index: indexPath)
+            self.state = .added(indexes: [indexPath])
             //update table DS
             self.messages.insert(message, at: index)
             //transition avatar + tableview cells
             self.transitionLayout(withAnimation: true, shouldMeasureAsync: false, measurementCompletion: nil)
         } else {
             self.messages.insert(message, at: index)
+        }
+    }
+    
+    open func addMessagesToGroup(_ inserts: [(GeneralMessengerCell, Int)], completion: (() -> Void)?) {
+        if let insert = inserts.first {
+            self.updateMessage(insert.0)
+        }
+        self.layoutCompletionBlock = completion
+        
+        if self.hasLaidOut {
+            // set state
+            let indexes = inserts.map { IndexPath(row: $0.1, section: 0) }
+            self.state = .added(indexes: indexes)
+            // update table DS
+            for insert in inserts {
+                self.messages.insert(insert.0, at: insert.1)
+            }
+            // transition avatar + tableview cells
+            self.transitionLayout(withAnimation: true, shouldMeasureAsync: false, measurementCompletion: nil)
         }
     }
     
