@@ -348,6 +348,10 @@ open class MessageGroup: GeneralMessengerCell {
             }
             // transition avatar + tableview cells
             self.transitionLayout(withAnimation: true, shouldMeasureAsync: false, measurementCompletion: nil)
+        } else {
+            for insert in inserts {
+                self.messages.insert(insert.0, at: insert.1)
+            }
         }
     }
     
