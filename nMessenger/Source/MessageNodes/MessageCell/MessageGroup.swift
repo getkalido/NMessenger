@@ -333,9 +333,6 @@ open class MessageGroup: GeneralMessengerCell {
     }
     
     open func addMessagesToGroup(_ inserts: [(GeneralMessengerCell, Int)], completion: (() -> Void)?) {
-        if let insert = inserts.first {
-            self.updateMessage(insert.0)
-        }
         self.layoutCompletionBlock = completion
         
         if self.hasLaidOut {
@@ -344,12 +341,15 @@ open class MessageGroup: GeneralMessengerCell {
             self.state = .added(indexes: indexes)
             // update table DS
             for insert in inserts {
+                self.updateMessage(insert.0)
                 self.messages.insert(insert.0, at: insert.1)
+                
             }
             // transition avatar + tableview cells
             self.transitionLayout(withAnimation: true, shouldMeasureAsync: false, measurementCompletion: nil)
         } else {
             for insert in inserts {
+                self.updateMessage(insert.0)
                 self.messages.insert(insert.0, at: insert.1)
             }
         }
@@ -420,14 +420,14 @@ open class MessageGroup: GeneralMessengerCell {
                             if let avatarNode = self.avatarNode {
                                 avatarNode.frame.origin.y = (self.messageTable.view.rectForRow(at: IndexPath(item: index-1, section: 0)).maxY) - avatarNode.frame.height + self.cellPadding.top
                             }
-                            }, completion: nil)
+                        }, completion: nil)
                     }
                     
                     let extraDelay = isLastMessage && self.avatarNode != nil ? self.avatarAnimationSpeed : 0
                     
                     let time: DispatchTime = DispatchTime.now() + Double(Int64(extraDelay + self.animationDelay)*1000 * Int64(NSEC_PER_MSEC)) / Double(NSEC_PER_SEC)
                     DispatchQueue.main.asyncAfter(deadline: time) {
-                        self.messageTable.performBatch(animated: true, updates: { 
+                        self.messageTable.performBatch(animated: true, updates: {
                             let indexPath = IndexPath(row: index, section:0)
                             self.messageTable.deleteRows(at: [indexPath], with: .fade)
                         }, completion: { (finished) in
@@ -472,37 +472,20 @@ open class MessageGroup: GeneralMessengerCell {
             }
             break
         case .last:
-            if !messages.isEmpty {
-                let lastIndex = messages.count - 1
-                let oldMessage = self.messages[lastIndex]
-                //set state
-                self.state = .replaced
-                if let message = oldMessage as? MessageNode {
-                    let isIncoming = message.isIncomingMessage
-                    message.contentNode?.backgroundBubble = message.contentNode?.bubbleConfiguration.getSecondaryBubble()
-                    message.isIncomingMessage = isIncoming
-                    //set the offset to 0 to prevent spacing issues
-                    message.messageOffset = 0
-                }
-                
-                self.messageTable.reloadRows(at: [IndexPath(row: lastIndex, section: 0) ], with: .fade)
-                
-                message.cellPadding = UIEdgeInsets.zero
-                if let message = message as? MessageNode {
-                    message.contentNode?.backgroundBubble = message.contentNode?.bubbleConfiguration.getBubble()
-                    message.isIncomingMessage = self.isIncomingMessage
-                    //set the offset to 0 to prevent spacing issues
-                    message.messageOffset = 0
-                }
-                
-            } else {
-                message.cellPadding = UIEdgeInsets.zero
-                if let message = message as? MessageNode {
-                    message.contentNode?.backgroundBubble = message.contentNode?.bubbleConfiguration.getBubble()
-                    message.isIncomingMessage = self.isIncomingMessage
-                    //set the offset to 0 to prevent spacing issues
-                    message.messageOffset = 0
-                }
+            if let last = messages.last as? MessageNode {
+                last.contentNode?.backgroundBubble = last.contentNode?.bubbleConfiguration.getSecondaryBubble()
+                last.isIncomingMessage = self.isIncomingMessage
+                //set the offset to 0 to prevent spacing issues
+                last.messageOffset = 0
+            }
+            
+            
+            message.cellPadding = UIEdgeInsets.zero
+            if let message = message as? MessageNode {
+                message.contentNode?.backgroundBubble = message.contentNode?.bubbleConfiguration.getBubble()
+                message.isIncomingMessage = self.isIncomingMessage
+                //set the offset to 0 to prevent spacing issues
+                message.messageOffset = 0
             }
             
             break
