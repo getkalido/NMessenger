@@ -136,7 +136,8 @@ open class MessageGroup: GeneralMessengerCell {
             tableWidth = constrainedSize.max.width - self.cellPadding.left - self.cellPadding.right - self.messageOffset
         }
         
-        var elementHeight:CGFloat = 0
+        /* When setting the message table's preferred size, take the footer height into account. */
+        var elementHeight:CGFloat = self.messageTable.view.sectionFooterHeight
         
         //get the size of every message in the group to calculate height
         for message in messages {
