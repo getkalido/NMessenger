@@ -477,6 +477,8 @@ open class MessageGroup: GeneralMessengerCell {
                 last.isIncomingMessage = self.isIncomingMessage
                 //set the offset to 0 to prevent spacing issues
                 last.messageOffset = 0
+                last.contentNode?.addSublayers()
+                last.contentNode?.setNeedsDisplay()
             }
             
             
