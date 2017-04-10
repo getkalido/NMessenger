@@ -441,6 +441,62 @@ open class MessageGroup: GeneralMessengerCell {
         }
     }
     
+    open func removeMessagesFromGroup(at rows: [Int], completion: (() -> Void)?) {
+        // whether any of the indexes are the last message:
+        var isLastMessage = false
+        // (index, message):
+        
+        let removes: [Int] = rows.flatMap { row in
+            guard row < messages.count else { return nil }
+            if row == messages.count - 1 {
+                isLastMessage = true
+            }
+            return row
+        }
+        
+        if self.hasLaidOut {
+            self.state = .removed // might need to change this to be associated with removed indexes
+            
+            for remove in removes.reversed() {
+                self.messages.remove(at: remove)
+            }
+            
+            if isLastMessage,
+                let avatarNode = self.avatarNode {
+                // Use special animation if the last message will be deleted
+                // Calculate height of rows that will _not_ be deleted:
+                var heightOfRemainingRows: CGFloat = 0
+                for i in 0 ..< self.messageTable.numberOfRows(inSection: 0) {
+                    if !removes.contains(i) {
+                        let heightOfRemainingRow = self.messageTable.view.rectForRow(at: IndexPath(item: i, section: 0)).height
+                        heightOfRemainingRows += heightOfRemainingRow
+                    }
+                }
+                
+                UIView.animate(withDuration: self.avatarAnimationSpeed, delay: self.animationDelay, options: [], animations: {
+                    avatarNode.frame.origin.y = heightOfRemainingRows - avatarNode.frame.height + self.cellPadding.top
+                })
+            }
+            
+            let extraDelay = (isLastMessage && self.avatarNode != nil) ? self.avatarAnimationSpeed : 0
+            let time = DispatchTime.now() + Double(Int64(extraDelay + self.animationDelay) * 1000 * Int64(NSEC_PER_MSEC)) / Double(NSEC_PER_SEC)
+            
+            DispatchQueue.main.asyncAfter(deadline: time) {
+                let indexPaths = removes.map { return IndexPath(row: $0, section: 0) }
+                self.messageTable.performBatch(animated: true, updates: {
+                    self.messageTable.deleteRows(at: indexPaths, with: .fade)
+                }, completion: { (finished) in
+                    self.transitionLayout(withAnimation: true, shouldMeasureAsync: false, measurementCompletion: nil)
+                })
+            }
+            
+        } else {
+            for remove in removes.reversed() {
+                self.messages.remove(at: remove)
+            }
+        }
+    }
+    
     //MARK: helper methods
     
     /**
